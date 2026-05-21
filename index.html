@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>100天完美女人计划</title>
+<style>
+  :root {
+    --pink: #D4537E; --pink-bg: #FBEAF0; --pink-light: #F4C0D1;
+    --green: #1D9E75; --green-bg: #E1F5EE; --green-light: #9FE1CB;
+    --blue: #378ADD; --blue-bg: #E6F1FB; --blue-light: #B5D4F4;
+    --gray: #888780; --gray-bg: #F1EFE8; --border: #e0ddd6;
+    --text: #2C2C2A; --text2: #5F5E5A; --text3: #888780;
+    --white: #fff; --surface: #fafaf8; --radius: 12px; --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, 'PingFang SC', sans-serif; background: var(--surface); color: var(--text); max-width: 480px; margin: 0 auto; min-height: 100vh; }
+
+  /* Login */
+  #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
+  .login-title { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .login-sub { font-size: 14px; color: var(--text3); margin-bottom: 2.5rem; }
+  .login-day { font-size: 13px; color: var(--text3); margin-bottom: 2rem; background: var(--gray-bg); padding: 6px 16px; border-radius: 99px; }
+  .person-btn { width: 100%; padding: 18px; border-radius: var(--radius); border: 1.5px solid var(--border); background: var(--white); margin-bottom: 12px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: all .15s; }
+  .person-btn:active { transform: scale(0.98); }
+  .person-btn.p0 { border-color: var(--pink-light); }
+  .person-btn.p1 { border-color: var(--green-light); }
+  .person-btn.p2 { border-color: var(--blue-light); }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; flex-shrink: 0; }
+  .p0 .avatar { background: var(--pink-bg); color: var(--pink); }
+  .p1 .avatar { background: var(--green-bg); color: var(--green); }
+  .p2 .avatar { background: var(--blue-bg); color: var(--blue); }
+  .person-info { text-align: left; }
+  .person-name { font-size: 17px; font-weight: 600; }
+  .person-hint { font-size: 13px; color: var(--text3); margin-top: 2px; }
+
+  /* App shell */
+  #app { display: none; }
+  .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .topbar-title { font-size: 16px; font-weight: 600; }
+  .topbar-user { font-size: 13px; color: var(--text3); display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .topbar-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .p0-dot { background: var(--pink); }
+  .p1-dot { background: var(--green); }
+  .p2-dot { background: var(--blue); }
+
+  /* Bottom nav */
+  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--white); border-top: 1px solid var(--border); display: flex; z-index: 10; }
+  .nav-btn { flex: 1; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; gap: 3px; border: none; background: transparent; cursor: pointer; color: var(--text3); font-size: 11px; transition: color .15s; }
+  .nav-btn.active { color: var(--pink); }
+  .nav-btn svg { width: 22px; height: 22px; }
+  .page { display: none; padding: 16px 16px calc(80px + env(safe-area-inset-bottom)); }
+  .page.active { display: block; }
+
+  /* Cards */
+  .card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 14px 16px; margin-bottom: 12px; }
+  .card-title { font-size: 13px; color: var(--text3); font-weight: 500; margin-bottom: 10px; }
+  .section-label { font-size: 12px; color: var(--text3); margin: 16px 0 8px; font-weight: 500; }
+
+  /* Today page */
+  .day-banner { background: linear-gradient(135deg, var(--pink-bg), var(--blue-bg)); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .day-num { font-size: 28px; font-weight: 700; color: var(--pink); }
+  .day-label { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .day-date { font-size: 14px; color: var(--text2); text-align: right; }
+  .day-remain { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+  .weight-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .weight-input-wrap { position: relative; }
+  .weight-label { font-size: 12px; color: var(--text3); margin-bottom: 4px; }
+  .weight-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 18px; font-weight: 600; color: var(--text); background: var(--white); }
+  .weight-input:focus { outline: none; border-color: var(--pink); }
+  .weight-unit { position: absolute; right: 10px; bottom: 12px; font-size: 12px; color: var(--text3); }
+  .diff-display { text-align: center; padding: 8px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+  .diff-down { background: #EAF3DE; color: #3B6D11; }
+  .diff-up { background: #FCEBEB; color: #A32D2D; }
+  .diff-same { background: var(--gray-bg); color: var(--gray); }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: var(--text3); }
+  .field select, .field input[type=text] { padding: 9px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; color: var(--text); background: var(--white); width: 100%; }
+  .field select:focus, .field input:focus { outline: none; border-color: var(--pink); }
+  .textarea-field { margin-bottom: 10px; }
+  .textarea-field label { font-size: 12px; color: var(--text3); display: block; margin-bottom: 4px; }
+  .textarea-field textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; color: var(--text); resize: none; height: 72px; font-family: inherit; }
+  .textarea-field textarea:focus { outline: none; border-color: var(--pink); }
+
+  .toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .toggle-chip { padding: 6px 14px; border-radius: 99px; border: 1px solid var(--border); background: var(--white); font-size: 13px; cursor: pointer; color: var(--text2); transition: all .15s; }
+  .toggle-chip.active-period { background: var(--pink-bg); color: var(--pink); border-color: var(--pink-light); }
+  .toggle-chip.active-done { background: var(--green-bg); color: var(--green); border-color: var(--green-light); }
+
+  .save-btn { width: 100%; padding: 14px; border-radius: var(--radius); border: none; background: var(--pink); color: var(--white); font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity .15s; }
+  .save-btn:active { opacity: .85; }
+  .save-ok { background: var(--green) !important; }
+
+  /* Others' summary in Today */
+  .others-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .other-card { background: var(--white); border-radius: var(--radius-sm); border: 1px solid var(--border); padding: 12px; }
+  .other-name { font-size: 12px; color: var(--text3); margin-bottom: 4px; }
+  .other-weight { font-size: 20px; font-weight: 700; }
+  .other-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 99px; margin-top: 4px; }
+  .badge-period { background: var(--pink-bg); color: var(--pink); }
+  .badge-down { background: #EAF3DE; color: #3B6D11; }
+  .badge-up { background: #FCEBEB; color: #A32D2D; }
+  .badge-same { background: var(--gray-bg); color: var(--gray); }
+
+  /* Trend page */
+  .chart-container { position: relative; height: 200px; margin-bottom: 8px; }
+  canvas { width: 100% !important; }
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .stat-card { background: var(--white); border-radius: var(--radius-sm); border: 1px solid var(--border); padding: 10px 12px; text-align: center; }
+  .stat-name { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+  .stat-val { font-size: 18px; font-weight: 700; }
+  .stat-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .p0c { color: var(--pink); } .p1c { color: var(--green); } .p2c { color: var(--blue); }
+
+  /* Log page */
+  .log-date-header { font-size: 12px; color: var(--text3); font-weight: 500; padding: 12px 0 6px; border-bottom: 1px solid var(--border); margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .log-entry { background: var(--white); border-radius: var(--radius-sm); border: 1px solid var(--border); padding: 12px 14px; margin-bottom: 8px; }
+  .log-entry.has-period { border-left: 3px solid var(--pink); }
+  .log-person-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .log-person-tag { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 99px; }
+  .p0-tag { background: var(--pink-bg); color: var(--pink); }
+  .p1-tag { background: var(--green-bg); color: var(--green); }
+  .p2-tag { background: var(--blue-bg); color: var(--blue); }
+  .log-w { font-size: 15px; font-weight: 600; }
+  .log-note { font-size: 13px; color: var(--text2); margin-top: 4px; line-height: 1.5; }
+  .log-meta { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+  /* Chat page */
+  .chat-wrap { display: flex; flex-direction: column; height: calc(100vh - 140px - env(safe-area-inset-bottom)); }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 8px 0; display: flex; flex-direction: column; gap: 10px; }
+  .msg-row { display: flex; flex-direction: column; }
+  .msg-row.me { align-items: flex-end; }
+  .msg-row.other0 { align-items: flex-start; }
+  .msg-row.other1 { align-items: center; }
+  .msg-row.other2 { align-items: flex-end; }
+  .msg-sender-name { font-size: 11px; color: var(--text3); margin-bottom: 3px; padding: 0 4px; }
+  .msg-bubble { max-width: 80%; padding: 9px 13px; border-radius: 16px; font-size: 14px; line-height: 1.5; }
+  .bubble-p0 { background: var(--pink-bg); color: #72243E; border-bottom-left-radius: 4px; }
+  .bubble-p1 { background: var(--green-bg); color: #085041; border-bottom-left-radius: 4px; }
+  .bubble-p2 { background: var(--blue-bg); color: #0C447C; border-bottom-right-radius: 4px; }
+  .msg-time { font-size: 10px; color: var(--text3); margin-top: 3px; padding: 0 4px; }
+  .chat-input-area { background: var(--white); border-top: 1px solid var(--border); padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); display: flex; gap: 8px; align-items: flex-end; }
+  .chat-input { flex: 1; padding: 9px 14px; border: 1px solid var(--border); border-radius: 20px; font-size: 14px; font-family: inherit; resize: none; max-height: 100px; overflow-y: auto; }
+  .chat-input:focus { outline: none; border-color: var(--pink); }
+  .send-btn { width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .send-p0 { background: var(--pink); } .send-p1 { background: var(--green); } .send-p2 { background: var(--blue); }
+  .send-btn svg { width: 16px; height: 16px; fill: white; }
+
+  /* Toast */
+  .toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: #2C2C2A; color: white; padding: 10px 20px; border-radius: 99px; font-size: 14px; z-index: 100; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+
+  /* Loading */
+  #loading { position: fixed; inset: 0; background: var(--white); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; }
+  .loading-text { font-size: 15px; color: var(--text3); margin-top: 16px; }
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--pink); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">加载中...</div>
+</div>
+
+<!-- Login -->
+<div id="login-screen" style="display:none">
+  <div class="login-title">100天完美女人计划</div>
+  <div class="login-sub">你是哪位美人？</div>
+  <div class="login-day" id="login-day-info">计算中...</div>
+  <button class="person-btn p0" onclick="login('pafu')">
+    <div class="avatar">泡</div>
+    <div class="person-info">
+      <div class="person-name">泡芙</div>
+      <div class="person-hint">点击进入</div>
+    </div>
+  </button>
+  <button class="person-btn p1" onclick="login('keke')">
+    <div class="avatar">珂</div>
+    <div class="person-info">
+      <div class="person-name">珂珂</div>
+      <div class="person-hint">点击进入</div>
+    </div>
+  </button>
+  <button class="person-btn p2" onclick="login('xuan')">
+    <div class="avatar">璇</div>
+    <div class="person-info">
+      <div class="person-name">小璇</div>
+      <div class="person-hint">点击进入</div>
+    </div>
+  </button>
+</div>
+
+<!-- Main App -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-title">100天完美女人计划</div>
+    <div class="topbar-user" onclick="logout()">
+      <div class="topbar-dot" id="user-dot"></div>
+      <span id="user-name-display"></span>
+      <span style="color:var(--text3)">退出</span>
+    </div>
+  </div>
+
+  <!-- Today Page -->
+  <div class="page active" id="page-today">
+    <div class="day-banner">
+      <div>
+        <div class="day-num" id="day-number">第42天</div>
+        <div class="day-label">坚持就是胜利</div>
+      </div>
+      <div class="day-date">
+        <div id="today-date-display"></div>
+        <div class="day-remain" id="day-remain"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" id="my-record-title">我的今日记录</div>
+      <div class="weight-row">
+        <div class="weight-input-wrap">
+          <div class="weight-label">早上体重</div>
+          <input class="weight-input" type="number" id="f-morning" placeholder="114.5" step="0.1" inputmode="decimal" oninput="calcDiff()">
+          <span class="weight-unit">斤</span>
+        </div>
+        <div class="weight-input-wrap">
+          <div class="weight-label">晚上体重</div>
+          <input class="weight-input" type="number" id="f-evening" placeholder="115.0" step="0.1" inputmode="decimal">
+          <span class="weight-unit">斤</span>
+        </div>
+      </div>
+      <div class="diff-display diff-same" id="diff-display" style="display:none"></div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>今日运动</label>
+          <select id="f-exercise">
+            <option value="">无</option>
+            <option>爬坡</option><option>爬山</option><option>跑步</option>
+            <option>跳绳</option><option>瑜伽</option><option>游泳</option>
+            <option>液断+爬坡</option><option>姨妈</option><option>休息</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>今日饮食计划</label>
+          <select id="f-plan">
+            <option value="">无</option>
+            <option>16+8</option><option>生酮</option><option>过5不食</option>
+            <option>液断</option><option>低碳</option><option>正常吃</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-chip" id="chip-period" onclick="toggleChip('period')">🩸 生理期</div>
+        <div class="toggle-chip" id="chip-done" onclick="toggleChip('done')">✅ 计划已完成</div>
+      </div>
+
+      <div class="textarea-field">
+        <label>今日备注（可以@其他人聊天）</label>
+        <textarea id="f-note" placeholder="今天吃了什么，感受怎么样..."></textarea>
+      </div>
+
+      <button class="save-btn" id="save-btn" onclick="saveToday()">保存今日记录</button>
+    </div>
+
+    <div class="section-label">今日其他人</div>
+    <div class="others-grid" id="others-grid"></div>
+  </div>
+
+  <!-- Trend Page -->
+  <div class="page" id="page-trend">
+    <div class="stat-grid" id="stat-grid"></div>
+    <div class="card">
+      <div class="card-title">体重趋势（近30天）</div>
+      <div class="chart-container">
+        <canvas id="trendChart"></canvas>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:8px;justify-content:center">
+        <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text3)"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--pink)"></span>泡芙</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text3)"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--green)"></span>珂珂</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text3)"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--blue)"></span>小璇</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log Page -->
+  <div class="page" id="page-log">
+    <div id="log-list"></div>
+  </div>
+
+  <!-- Chat Page -->
+  <div class="page" id="page-chat" style="padding:0">
+    <div class="chat-wrap">
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="chat-input" placeholder="说点什么..." rows="1"
+          oninput="autoResize(this)"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendChat()">
+          <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="switchPage('today',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      今日
+    </button>
+    <button class="nav-btn" onclick="switchPage('trend',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      趋势
+    </button>
+    <button class="nav-btn" onclick="switchPage('log',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      日志
+    </button>
+    <button class="nav-btn" onclick="switchPage('chat',this)">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      聊天
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDKs -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, push, onValue, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+// ========== FIREBASE CONFIG ==========
+// 替换成你自己的Firebase配置
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+// =====================================
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+window._db = db;
+window._dbRef = ref;
+window._dbSet = set;
+window._dbGet = get;
+window._dbPush = push;
+window._dbOnValue = onValue;
+window._dbServerTimestamp = serverTimestamp;
+
+window.addEventListener('DOMContentLoaded', () => {});
+initApp();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
